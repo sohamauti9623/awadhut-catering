@@ -1,53 +1,76 @@
-import { useEffect } from "react";
-import "@/App.css";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import axios from "axios";
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { Toaster } from 'sonner';
+import Navbar from './components/Navbar';
+import Footer from './components/Footer';
+import FloatingButtons from './components/FloatingButtons';
+import HomePage from './pages/HomePage';
+import AboutPage from './pages/AboutPage';
+import ServicesPage from './pages/ServicesPage';
+import PackagesPage from './pages/PackagesPage';
+import GalleryPage from './pages/GalleryPage';
+import ReviewsPage from './pages/ReviewsPage';
+import BookingPage from './pages/BookingPage';
+import ContactPage from './pages/ContactPage';
+import AdminLogin from './pages/admin/AdminLogin';
+import AdminLayout from './pages/admin/AdminLayout';
+import AdminDashboard from './pages/admin/AdminDashboard';
+import AdminPackages from './pages/admin/AdminPackages';
+import AdminGallery from './pages/admin/AdminGallery';
+import AdminBookings from './pages/admin/AdminBookings';
+import AdminReviews from './pages/admin/AdminReviews';
+import AdminMessages from './pages/admin/AdminMessages';
+import { useEffect } from 'react';
+import api from './lib/api';
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
-const API = `${BACKEND_URL}/api`;
+function PublicLayout({ children }) {
+  return (
+    <>
+      <Navbar />
+      <main className="min-h-screen">{children}</main>
+      <Footer />
+      <FloatingButtons />
+    </>
+  );
+}
 
-const Home = () => {
-  const helloWorldApi = async () => {
-    try {
-      const response = await axios.get(`${API}/`);
-      console.log(response.data.message);
-    } catch (e) {
-      console.error(e, `errored out requesting / api`);
-    }
-  };
+function ScrollToTop() {
+  const { pathname } = window.location;
+  useEffect(() => { window.scrollTo(0, 0); }, [pathname]);
+  return null;
+}
 
+function App() {
+  // Seed data on first load
   useEffect(() => {
-    helloWorldApi();
+    api.post('/seed').catch(() => {});
   }, []);
 
   return (
-    <div>
-      <header className="App-header">
-        <a
-          className="App-link"
-          href="https://emergent.sh"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <img src="https://avatars.githubusercontent.com/in/1201222?s=120&u=2686cf91179bbafbc7a71bfbc43004cf9ae1acea&v=4" />
-        </a>
-        <p className="mt-5">Building something incredible ~!</p>
-      </header>
-    </div>
-  );
-};
+    <BrowserRouter>
+      <Toaster position="top-right" richColors />
+      <Routes>
+        {/* Admin Routes */}
+        <Route path="/admin/login" element={<AdminLogin />} />
+        <Route path="/admin" element={<AdminLayout />}>
+          <Route index element={<AdminDashboard />} />
+          <Route path="packages" element={<AdminPackages />} />
+          <Route path="gallery" element={<AdminGallery />} />
+          <Route path="bookings" element={<AdminBookings />} />
+          <Route path="reviews" element={<AdminReviews />} />
+          <Route path="messages" element={<AdminMessages />} />
+        </Route>
 
-function App() {
-  return (
-    <div className="App">
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Home />}>
-            <Route index element={<Home />} />
-          </Route>
-        </Routes>
-      </BrowserRouter>
-    </div>
+        {/* Public Routes */}
+        <Route path="/" element={<PublicLayout><HomePage /></PublicLayout>} />
+        <Route path="/about" element={<PublicLayout><AboutPage /></PublicLayout>} />
+        <Route path="/services" element={<PublicLayout><ServicesPage /></PublicLayout>} />
+        <Route path="/packages" element={<PublicLayout><PackagesPage /></PublicLayout>} />
+        <Route path="/gallery" element={<PublicLayout><GalleryPage /></PublicLayout>} />
+        <Route path="/reviews" element={<PublicLayout><ReviewsPage /></PublicLayout>} />
+        <Route path="/booking" element={<PublicLayout><BookingPage /></PublicLayout>} />
+        <Route path="/contact" element={<PublicLayout><ContactPage /></PublicLayout>} />
+      </Routes>
+    </BrowserRouter>
   );
 }
 
