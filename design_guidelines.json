@@ -1,0 +1,155 @@
+{
+  "theme_overview": "Premium, luxurious, modern event management platform targeting weddings and corporate events in India. Fuses 'Apple-style' clean glassmorphism with traditional Indian festive colors (Crimson Red, Gold, Cream/White).",
+  "typography": {
+    "headings": {
+      "font": "Playfair Display",
+      "weights": ["400", "600", "700"],
+      "classes": "font-serif tracking-tight text-stone-900",
+      "google_font_url": "https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&display=swap"
+    },
+    "body": {
+      "font": "Outfit",
+      "weights": ["300", "400", "500", "600"],
+      "classes": "font-sans leading-relaxed text-stone-600",
+      "google_font_url": "https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&display=swap"
+    }
+  },
+  "colors": {
+    "primary": {
+      "name": "Crimson Red",
+      "hex": "#991B1B",
+      "tailwind": "red-800",
+      "usage": "CTAs, accents, primary buttons"
+    },
+    "secondary": {
+      "name": "Luxury Gold",
+      "hex": "#D4AF37",
+      "tailwind": "amber-500",
+      "usage": "Highlights, icons, stars, borders on premium cards"
+    },
+    "background": {
+      "name": "Cream / Off-White",
+      "hex": "#FAFAF9",
+      "tailwind": "stone-50",
+      "usage": "Main application background"
+    },
+    "surface": {
+      "name": "Glass White",
+      "tailwind": "bg-white/60",
+      "usage": "Cards, navbar, modals"
+    },
+    "text": {
+      "primary": "text-stone-900",
+      "secondary": "text-stone-600",
+      "muted": "text-stone-400"
+    }
+  },
+  "visual_enhancers": {
+    "glassmorphism": "bg-white/60 backdrop-blur-lg border border-white/40 shadow-[0_8px_32px_rgba(0,0,0,0.08)] rounded-2xl",
+    "shadows": {
+      "soft": "shadow-[0_8px_30px_rgb(0,0,0,0.04)]",
+      "hover": "shadow-[0_20px_40px_rgb(0,0,0,0.08)]"
+    },
+    "motion": {
+      "rules": "Strictly CSS-only animations. No framer-motion.",
+      "transitions": "transition-all duration-300 ease-out",
+      "liquid_hover": "relative overflow-hidden group hover:shadow-lg after:absolute after:inset-0 after:bg-white/20 after:translate-y-[100%] hover:after:translate-y-0 after:transition-transform after:duration-300",
+      "card_hover": "hover:-translate-y-1 hover:shadow-[0_20px_40px_rgb(0,0,0,0.08)] transition-all duration-300"
+    }
+  },
+  "grids_and_layouts": {
+    "spacing": "Generous spacing. Use p-8 to p-12 for containers.",
+    "masonry_gallery": "columns-1 sm:columns-2 md:columns-3 lg:columns-4 gap-4 space-y-4",
+    "bento_grid": "grid grid-cols-1 md:grid-cols-12 gap-6",
+    "bento_items": {
+      "hero": "md:col-span-8 row-span-2",
+      "tall": "md:col-span-4 row-span-2",
+      "square": "md:col-span-4 row-span-1"
+    }
+  },
+  "accessibility": {
+    "contrast": "Ensure text over glassmorphism has minimum 4.5:1 contrast. Use drop-shadows on text if placed directly over images.",
+    "testing": "All interactive and key informational elements MUST include a 'data-testid' attribute (e.g., data-testid='contact-submit-button')."
+  },
+  "components": {
+    "buttons": "Pill-shaped (rounded-full) or rounded-xl. Primary: bg-red-800 text-white. Secondary: bg-white/80 backdrop-blur text-stone-900 border border-stone-200. Apply liquid_hover rule.",
+    "floating_actions": "Fixed bottom-right z-50. Stacked vertically. WhatsApp icon (green) and Call Now icon (amber/gold). Pulse animation for attention.",
+    "cards": "Glassmorphism base, p-8 padding, rounded-2xl, soft shadow. Avoid hard borders.",
+    "navbar": "Sticky top-0, z-40. Crystal glassmorphism (bg-white/70 backdrop-blur-xl border-b border-white/40). DO NOT use transparent bg.",
+    "admin_dashboard": "Use sharp/dense UI for admin (not glassmorphism). Standard Shadcn tables, charts, and flat cards with 1px border-border."
+  },
+  "media": {
+    "image_urls": [
+      {
+        "url": "https://images.unsplash.com/photo-1763553113391-a659bee36e06?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1NzB8MHwxfHNlYXJjaHwzfHxsdXh1cnklMjBiYW5xdWV0JTIwaGFsbCUyMHdlZGRpbmd8ZW58MHx8fHwxNzc0MjU3MTY1fDA&ixlib=rb-4.1.0&q=85",
+        "category": "Hero / Banquet Hall",
+        "description": "Elegant wedding reception tables with floral decorations"
+      },
+      {
+        "url": "https://images.pexels.com/photos/36028895/pexels-photo-36028895.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+        "category": "Banquet Hall / Gallery",
+        "description": "Luxurious wedding banquet hall with chandeliers"
+      },
+      {
+        "url": "https://images.pexels.com/photos/2291367/pexels-photo-2291367.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+        "category": "Catering Services",
+        "description": "Elegant buffet setup in stainless steel chafing dishes"
+      },
+      {
+        "url": "https://images.pexels.com/photos/5039342/pexels-photo-5039342.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+        "category": "Catering Services / Gallery",
+        "description": "Gourmet catering food skewers"
+      },
+      {
+        "url": "https://images.unsplash.com/photo-1587271636175-90d58cdad458?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2Njd8MHwxfHNlYXJjaHwxfHx3ZWRkaW5nJTIwZGVjb3JhdGlvbiUyMG1hbmRhcHxlbnwwfHx8fDE3NzQyNTcxNjd8MA&ixlib=rb-4.1.0&q=85",
+        "category": "Decoration / Wedding",
+        "description": "Red and white floral umbrella / mandap"
+      },
+      {
+        "url": "https://images.pexels.com/photos/36581291/pexels-photo-36581291.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+        "category": "Decoration / Gallery",
+        "description": "Vibrant decorative plate, Indian ceremony"
+      },
+      {
+        "url": "https://images.unsplash.com/photo-1762765684810-b734486c5eda?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjAzNDR8MHwxfHNlYXJjaHwzfHxjb3Jwb3JhdGUlMjBldmVudCUyMGhhbGx8ZW58MHx8fHwxNzc0MjU3MTY4fDA&ixlib=rb-4.1.0&q=85",
+        "category": "Corporate Events",
+        "description": "Long tables set for banquet"
+      },
+      {
+        "url": "https://images.pexels.com/photos/4940642/pexels-photo-4940642.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+        "category": "Corporate Events / Meeting",
+        "description": "Modern conference hall"
+      }
+    ]
+  },
+  "page_structures": {
+    "Home": "Hero Section (Image bg + Glass Title Card + CTAs), Services Preview (3 columns glass cards), Featured Packages (Dynamic grid), Gallery Preview (Masonry limited items), Testimonials slider.",
+    "About": "Business intro, timeline/experience, 'Why Choose Us' bento grid mapping value props.",
+    "Services": "Detailed views of Catering, Banquet Hall, Decoration. Alternating left/right image + text blocks with heavy padding.",
+    "Packages": "Dynamic grid fetched from MongoDB. Categorized (Wedding, Food, Corporate) using generic Shadcn Tabs (styled to match theme).",
+    "Gallery": "Full masonry grid. CSS-based filters (buttons that change state and filter mapped array).",
+    "Reviews": "Testimonials list, star ratings (text-amber-500), masonry or bento layout.",
+    "Booking": "Glassmorphism form inside a centered max-w-2xl card. Connects to FastAPI backend.",
+    "Contact": "Premium layout with Google Maps embed on one side (rounded-2xl overflow-hidden), contact info/form on the other.",
+    "Admin_Dashboard": "Sidebar navigation. Data tables (Shadcn UI) for CRUD operations (Packages, Gallery, Bookings, Reviews). Flat/dense cards for admin stats."
+  },
+  "instructions_to_main_agent": [
+    "Install and setup required fonts in index.css using Google Fonts imports for 'Outfit' and 'Playfair Display'.",
+    "Update tailwind.config.js to include these fonts (sans: 'Outfit', serif: 'Playfair Display').",
+    "Build standard React components (.js/.jsx) with Tailwind. Ensure no framer-motion is used.",
+    "All animations must be purely CSS-based. Use 'group-hover', 'transition-all', 'duration-300'.",
+    "Implement the Floating WhatsApp & Call Buttons globally in the App layout, fixed bottom right, stacked vertically.",
+    "Ensure the Admin section uses a clean, dense interface to distinguish it from the marketing side.",
+    "Fetch dynamic data (packages, gallery, reviews) using Axios or fetch inside useEffect hooks.",
+    "Implement 'data-testid' attributes on all interactive elements as per the critical rules."
+  ],
+  "universal_guidelines_for_main_agent": [
+    "You MUST NOT apply universal transition 'transition: all' in global CSS. Apply specific transitions to components.",
+    "You MUST NOT center align the app container (.App { text-align: center; } is strictly forbidden).",
+    "DO NOT use emojis for icons. Use lucide-react (already installed).",
+    "Provide generous spacing (2-3x more than typical). Never cramp UI elements.",
+    "Prioritize Shadcn/UI components but customize them to match the glassmorphism red/gold/white theme for user-facing pages.",
+    "Use sonner for toast notifications.",
+    "Never use generic flat colors for the marketing site; always introduce subtle shadows, borders, or glassmorphism to create depth."
+  ]
+}
