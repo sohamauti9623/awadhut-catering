@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { Toaster } from 'sonner';
+import { AuthProvider } from './contexts/AuthContext';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import FloatingButtons from './components/FloatingButtons';
@@ -46,31 +47,33 @@ function App() {
   }, []);
 
   return (
-    <BrowserRouter>
-      <Toaster position="top-right" richColors />
-      <Routes>
-        {/* Admin Routes */}
-        <Route path="/admin/login" element={<AdminLogin />} />
-        <Route path="/admin" element={<AdminLayout />}>
-          <Route index element={<AdminDashboard />} />
-          <Route path="packages" element={<AdminPackages />} />
-          <Route path="gallery" element={<AdminGallery />} />
-          <Route path="bookings" element={<AdminBookings />} />
-          <Route path="reviews" element={<AdminReviews />} />
-          <Route path="messages" element={<AdminMessages />} />
-        </Route>
+    <AuthProvider>
+      <BrowserRouter>
+        <Toaster position="top-right" richColors />
+        <Routes>
+          {/* Admin Routes */}
+          <Route path="/admin/login" element={<AdminLogin />} />
+          <Route path="/admin" element={<AdminLayout />}>
+            <Route index element={<AdminDashboard />} />
+            <Route path="packages" element={<AdminPackages />} />
+            <Route path="gallery" element={<AdminGallery />} />
+            <Route path="bookings" element={<AdminBookings />} />
+            <Route path="reviews" element={<AdminReviews />} />
+            <Route path="messages" element={<AdminMessages />} />
+          </Route>
 
-        {/* Public Routes */}
-        <Route path="/" element={<PublicLayout><HomePage /></PublicLayout>} />
-        <Route path="/about" element={<PublicLayout><AboutPage /></PublicLayout>} />
-        <Route path="/services" element={<PublicLayout><ServicesPage /></PublicLayout>} />
-        <Route path="/packages" element={<PublicLayout><PackagesPage /></PublicLayout>} />
-        <Route path="/gallery" element={<PublicLayout><GalleryPage /></PublicLayout>} />
-        <Route path="/reviews" element={<PublicLayout><ReviewsPage /></PublicLayout>} />
-        <Route path="/booking" element={<PublicLayout><BookingPage /></PublicLayout>} />
-        <Route path="/contact" element={<PublicLayout><ContactPage /></PublicLayout>} />
-      </Routes>
-    </BrowserRouter>
+          {/* Public Routes */}
+          <Route path="/" element={<PublicLayout><HomePage /></PublicLayout>} />
+          <Route path="/about" element={<PublicLayout><AboutPage /></PublicLayout>} />
+          <Route path="/services" element={<PublicLayout><ServicesPage /></PublicLayout>} />
+          <Route path="/packages" element={<PublicLayout><PackagesPage /></PublicLayout>} />
+          <Route path="/gallery" element={<PublicLayout><GalleryPage /></PublicLayout>} />
+          <Route path="/reviews" element={<PublicLayout><ReviewsPage /></PublicLayout>} />
+          <Route path="/booking" element={<PublicLayout><BookingPage /></PublicLayout>} />
+          <Route path="/contact" element={<PublicLayout><ContactPage /></PublicLayout>} />
+        </Routes>
+      </BrowserRouter>
+    </AuthProvider>
   );
 }
 

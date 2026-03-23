@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react';
-import { Star, Send } from 'lucide-react';
-import { Input } from '../components/ui/input';
+import { Star, Send, LogIn, LogOut, User } from 'lucide-react';
 import { Textarea } from '../components/ui/textarea';
+import { Input } from '../components/ui/input';
 import { useScrollAnimation } from '../hooks/useScrollAnimation';
 import { toast } from 'sonner';
+import { useAuth } from '../contexts/AuthContext';
+import UserAuthModal from '../components/UserAuthModal';
 import api from '../lib/api';
 
 function AnimatedSection({ children, className = '', delay = 0 }) {
@@ -17,9 +19,12 @@ function AnimatedSection({ children, className = '', delay = 0 }) {
 
 export default function ReviewsPage() {
   const [reviews, setReviews] = useState([]);
+  const [myReviews, setMyReviews] = useState([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
-  const [form, setForm] = useState({ name: '', rating: 5, comment: '', eventType: '' });
+  const [form, setForm] = useState({ rating: 5, comment: '', eventType: '' });
+  const [authOpen, setAuthOpen] = useState(false);
+  const { user, logout } = useAuth();
 
   useEffect(() => {
     api.get('/reviews?approved=true')
@@ -27,16 +32,28 @@ export default function ReviewsPage() {
       .catch(() => setLoading(false));
   }, []);
 
+  useEffect(() => {
+    if (user?.token) {
+      api.get('/reviews/my', { headers: { Authorization: `Bearer ${user.token}` } })
+        .then(r => setMyReviews(r.data))
+        .catch(() => {});
+    }
+  }, [user]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!form.name || !form.comment) { toast.error('Please fill name and comment'); return; }
+    if (!user) { setAuthOpen(true); return; }
+    if (!form.comment) { toast.error('Please write your review'); return; }
     setSubmitting(true);
     try {
-      await api.post('/reviews', form);
+      await api.post('/reviews', form, { headers: { Authorization: `Bearer ${user.token}` } });
       toast.success('Thank you! Your review has been submitted for approval.');
-      setForm({ name: '', rating: 5, comment: '', eventType: '' });
-    } catch {
-      toast.error('Failed to submit review. Please try again.');
+      setForm({ rating: 5, comment: '', eventType: '' });
+      // Refresh my reviews
+      const r = await api.get('/reviews/my', { headers: { Authorization: `Bearer ${user.token}` } });
+      setMyReviews(r.data);
+    } catch (err) {
+      toast.error(err.response?.data?.detail || 'Failed to submit review.');
     }
     setSubmitting(false);
   };
@@ -45,6 +62,8 @@ export default function ReviewsPage() {
 
   return (
     <div data-testid="reviews-page" className="pt-24">
+      <UserAuthModal open={authOpen} onClose={() => setAuthOpen(false)} />
+
       <section className="py-16 lg:py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <AnimatedSection className="text-center mb-16">
@@ -87,23 +106,47 @@ export default function ReviewsPage() {
             </div>
           )}
 
-          {/* Submit Review */}
+          {/* Submit Review Section */}
           <AnimatedSection>
             <div className="max-w-xl mx-auto">
               <div className="p-8 rounded-2xl bg-white/60 backdrop-blur-lg border border-white/40 shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
                 <h2 className="font-serif text-2xl font-bold text-stone-900 mb-2 text-center">Share Your Experience</h2>
-                <p className="text-stone-500 text-sm text-center mb-8">Your feedback helps us improve and serve you better.</p>
-                <form onSubmit={handleSubmit} className="space-y-5">
-                  <div>
-                    <label className="text-sm font-medium text-stone-700 mb-1.5 block">Your Name</label>
-                    <Input
-                      data-testid="review-name-input"
-                      value={form.name}
-                      onChange={e => setForm({...form, name: e.target.value})}
-                      placeholder="Enter your name"
-                      className="rounded-xl"
-                    />
+                <p className="text-stone-500 text-sm text-center mb-6">Your feedback helps us improve and serve you better.</p>
+
+                {/* User Auth Status */}
+                {user ? (
+                  <div className="flex items-center justify-between p-3 rounded-xl bg-green-50 border border-green-100 mb-6">
+                    <div className="flex items-center gap-2">
+                      <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center">
+                        <User className="w-4 h-4 text-green-700" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-green-800">{user.name}</p>
+                        <p className="text-xs text-green-600">{user.email}</p>
+                      </div>
+                    </div>
+                    <button
+                      data-testid="user-logout-btn"
+                      onClick={logout}
+                      className="flex items-center gap-1 text-xs text-stone-500 hover:text-red-600 transition-colors"
+                    >
+                      <LogOut className="w-3 h-3" /> Logout
+                    </button>
                   </div>
+                ) : (
+                  <div className="p-4 rounded-xl bg-amber-50 border border-amber-100 mb-6 text-center">
+                    <p className="text-sm text-amber-800 mb-2">Please login or create an account to submit a review</p>
+                    <button
+                      data-testid="login-to-review-btn"
+                      onClick={() => setAuthOpen(true)}
+                      className="inline-flex items-center gap-2 bg-red-800 text-white px-5 py-2 rounded-full text-sm font-medium transition-all duration-300 hover:bg-red-900"
+                    >
+                      <LogIn className="w-4 h-4" /> Login / Sign Up
+                    </button>
+                  </div>
+                )}
+
+                <form onSubmit={handleSubmit} className="space-y-5">
                   <div>
                     <label className="text-sm font-medium text-stone-700 mb-1.5 block">Event Type</label>
                     <Input
@@ -112,6 +155,7 @@ export default function ReviewsPage() {
                       onChange={e => setForm({...form, eventType: e.target.value})}
                       placeholder="e.g., Wedding, Birthday, Corporate"
                       className="rounded-xl"
+                      disabled={!user}
                     />
                   </div>
                   <div>
@@ -122,8 +166,9 @@ export default function ReviewsPage() {
                           key={i}
                           type="button"
                           data-testid={`rating-star-${i}`}
-                          onClick={() => setForm({...form, rating: i})}
-                          className="transition-transform hover:scale-110"
+                          onClick={() => user && setForm({...form, rating: i})}
+                          className={`transition-transform hover:scale-110 ${!user ? 'opacity-50 cursor-not-allowed' : ''}`}
+                          disabled={!user}
                         >
                           <Star className={`w-7 h-7 ${i <= form.rating ? 'text-amber-500 fill-amber-500' : 'text-stone-300'}`} />
                         </button>
@@ -136,21 +181,46 @@ export default function ReviewsPage() {
                       data-testid="review-comment-input"
                       value={form.comment}
                       onChange={e => setForm({...form, comment: e.target.value})}
-                      placeholder="Tell us about your experience..."
+                      placeholder={user ? "Tell us about your experience..." : "Login to write a review..."}
                       rows={4}
                       className="rounded-xl"
+                      disabled={!user}
                     />
                   </div>
                   <button
                     type="submit"
                     data-testid="submit-review-btn"
-                    disabled={submitting}
-                    className="w-full flex items-center justify-center gap-2 bg-red-800 text-white py-3 rounded-xl text-sm font-medium btn-liquid transition-all duration-300 hover:bg-red-900 disabled:opacity-50"
+                    disabled={submitting || !user}
+                    className="w-full flex items-center justify-center gap-2 bg-red-800 text-white py-3 rounded-xl text-sm font-medium btn-liquid transition-all duration-300 hover:bg-red-900 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <Send className="w-4 h-4" />
-                    {submitting ? 'Submitting...' : 'Submit Review'}
+                    {!user ? 'Login Required to Submit' : submitting ? 'Submitting...' : 'Submit Review'}
                   </button>
                 </form>
+
+                {/* My Reviews */}
+                {user && myReviews.length > 0 && (
+                  <div className="mt-8 pt-6 border-t border-stone-200">
+                    <h3 className="font-serif text-lg font-semibold text-stone-900 mb-4">Your Reviews</h3>
+                    <div className="space-y-3">
+                      {myReviews.map(r => (
+                        <div key={r.id} className="p-4 rounded-xl bg-stone-50 border border-stone-100">
+                          <div className="flex items-center justify-between mb-2">
+                            <div className="flex gap-0.5">
+                              {[...Array(5)].map((_, i) => (
+                                <Star key={i} className={`w-3.5 h-3.5 ${i < r.rating ? 'text-amber-500 fill-amber-500' : 'text-stone-200'}`} />
+                              ))}
+                            </div>
+                            <span className={`text-xs px-2 py-0.5 rounded-full ${r.approved ? 'bg-green-50 text-green-700' : 'bg-amber-50 text-amber-700'}`}>
+                              {r.approved ? 'Approved' : 'Pending Approval'}
+                            </span>
+                          </div>
+                          <p className="text-sm text-stone-600">{r.comment}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </AnimatedSection>

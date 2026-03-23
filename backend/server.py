@@ -56,8 +56,24 @@ async def get_current_admin(credentials: HTTPAuthorizationCredentials = Depends(
     except jwt.InvalidTokenError:
         raise HTTPException(status_code=401, detail="Invalid token")
 
+async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)):
+    if not credentials:
+        raise HTTPException(status_code=401, detail="Not authenticated. Please login to submit a review.")
+    try:
+        payload = jwt.decode(credentials.credentials, JWT_SECRET, algorithms=["HS256"])
+        return payload
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Token expired")
+    except jwt.InvalidTokenError:
+        raise HTTPException(status_code=401, detail="Invalid token")
+
 # ─── Pydantic Models ───
 class AdminLogin(BaseModel):
+    email: str
+    password: str
+
+class UserRegister(BaseModel):
+    name: str
     email: str
     password: str
 
@@ -90,7 +106,6 @@ class GalleryCreate(BaseModel):
     description: str = ""
 
 class ReviewCreate(BaseModel):
-    name: str
     rating: int = Field(ge=1, le=5)
     comment: str
     eventType: str = ""
@@ -121,16 +136,33 @@ class ContactCreate(BaseModel):
 
 # ─── Auth Routes ───
 @api_router.post("/auth/login")
-async def admin_login(data: AdminLogin):
-    admin = await db.users.find_one({"email": data.email, "role": "admin"}, {"_id": 0})
-    if not admin or not verify_password(data.password, admin["password"]):
+async def login(data: AdminLogin):
+    user = await db.users.find_one({"email": data.email}, {"_id": 0})
+    if not user or not verify_password(data.password, user["password"]):
         raise HTTPException(status_code=401, detail="Invalid credentials")
-    token = create_token({"email": admin["email"], "role": "admin", "name": admin["name"]})
-    return {"token": token, "name": admin["name"], "email": admin["email"]}
+    token = create_token({"email": user["email"], "role": user["role"], "name": user["name"], "userId": user["id"]})
+    return {"token": token, "name": user["name"], "email": user["email"], "role": user["role"]}
+
+@api_router.post("/auth/register", status_code=201)
+async def register_user(data: UserRegister):
+    existing = await db.users.find_one({"email": data.email})
+    if existing:
+        raise HTTPException(status_code=400, detail="Email already registered")
+    doc = {
+        "id": str(uuid.uuid4()),
+        "name": data.name,
+        "email": data.email,
+        "password": hash_password(data.password),
+        "role": "user",
+        "createdAt": datetime.now(timezone.utc).isoformat()
+    }
+    await db.users.insert_one(doc)
+    token = create_token({"email": doc["email"], "role": "user", "name": doc["name"], "userId": doc["id"]})
+    return {"token": token, "name": doc["name"], "email": doc["email"], "role": "user"}
 
 @api_router.get("/auth/me")
-async def get_me(admin=Depends(get_current_admin)):
-    return {"email": admin["email"], "name": admin["name"], "role": admin["role"]}
+async def get_me(user=Depends(get_current_user)):
+    return {"email": user["email"], "name": user["name"], "role": user["role"]}
 
 # ─── Packages Routes ───
 @api_router.get("/packages")
@@ -150,7 +182,7 @@ async def get_package(package_id: str):
         raise HTTPException(status_code=404, detail="Package not found")
     return pkg
 
-@api_router.post("/packages")
+@api_router.post("/packages", status_code=201)
 async def create_package(data: PackageCreate, admin=Depends(get_current_admin)):
     doc = data.model_dump()
     doc["id"] = str(uuid.uuid4())
@@ -187,7 +219,7 @@ async def get_gallery(category: Optional[str] = None):
     items = await db.gallery.find(query, {"_id": 0}).to_list(100)
     return items
 
-@api_router.post("/gallery")
+@api_router.post("/gallery", status_code=201)
 async def create_gallery(data: GalleryCreate, admin=Depends(get_current_admin)):
     doc = data.model_dump()
     doc["id"] = str(uuid.uuid4())
@@ -212,15 +244,22 @@ async def get_reviews(approved: Optional[bool] = None):
     reviews = await db.reviews.find(query, {"_id": 0}).sort("createdAt", -1).to_list(100)
     return reviews
 
-@api_router.post("/reviews")
-async def create_review(data: ReviewCreate):
+@api_router.post("/reviews", status_code=201)
+async def create_review(data: ReviewCreate, user=Depends(get_current_user)):
     doc = data.model_dump()
     doc["id"] = str(uuid.uuid4())
+    doc["name"] = user["name"]
+    doc["userId"] = user.get("userId", "")
     doc["approved"] = False
     doc["createdAt"] = datetime.now(timezone.utc).isoformat()
     await db.reviews.insert_one(doc)
     doc.pop("_id", None)
     return doc
+
+@api_router.get("/reviews/my")
+async def get_my_reviews(user=Depends(get_current_user)):
+    reviews = await db.reviews.find({"userId": user.get("userId", "")}, {"_id": 0}).sort("createdAt", -1).to_list(50)
+    return reviews
 
 @api_router.put("/reviews/{review_id}/approve")
 async def approve_review(review_id: str, admin=Depends(get_current_admin)):
@@ -242,7 +281,7 @@ async def get_bookings(admin=Depends(get_current_admin)):
     bookings = await db.bookings.find({}, {"_id": 0}).sort("createdAt", -1).to_list(200)
     return bookings
 
-@api_router.post("/bookings")
+@api_router.post("/bookings", status_code=201)
 async def create_booking(data: BookingCreate):
     doc = data.model_dump()
     doc["id"] = str(uuid.uuid4())

@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, Phone } from 'lucide-react';
+import { Menu, X, Phone, User, LogOut } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
+import UserAuthModal from './UserAuthModal';
 
 const navLinks = [
   { name: 'Home', path: '/' },
@@ -15,7 +17,9 @@ const navLinks = [
 export default function Navbar() {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [authOpen, setAuthOpen] = useState(false);
   const location = useLocation();
+  const { user, logout } = useAuth();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
@@ -65,8 +69,32 @@ export default function Navbar() {
             ))}
           </div>
 
-          {/* CTA + Mobile Toggle */}
+          {/* CTA + User + Mobile Toggle */}
           <div className="flex items-center gap-3">
+            {user ? (
+              <div className="hidden sm:flex items-center gap-2">
+                <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-stone-100/80 text-stone-700">
+                  <User className="w-3.5 h-3.5" />
+                  <span className="text-xs font-medium">{user.name}</span>
+                </div>
+                <button
+                  data-testid="navbar-logout-btn"
+                  onClick={logout}
+                  className="p-2 rounded-full hover:bg-stone-100 text-stone-500"
+                  title="Logout"
+                >
+                  <LogOut className="w-4 h-4" />
+                </button>
+              </div>
+            ) : (
+              <button
+                data-testid="navbar-login-btn"
+                onClick={() => setAuthOpen(true)}
+                className="hidden sm:inline-flex items-center gap-2 text-stone-600 hover:text-stone-900 px-3 py-2 rounded-lg text-sm font-medium transition-colors"
+              >
+                <User className="w-4 h-4" /> Login
+              </button>
+            )}
             <Link
               to="/booking"
               data-testid="nav-book-event"
@@ -115,8 +143,23 @@ export default function Navbar() {
           >
             Book Your Event
           </Link>
+          {user ? (
+            <div className="flex items-center justify-between mt-3 px-4 py-3 rounded-xl bg-stone-50">
+              <span className="text-sm text-stone-600">{user.name}</span>
+              <button onClick={logout} className="text-xs text-red-600">Logout</button>
+            </div>
+          ) : (
+            <button
+              onClick={() => setAuthOpen(true)}
+              className="block mt-2 w-full text-center border border-stone-200 text-stone-700 px-5 py-3 rounded-xl text-sm font-medium"
+            >
+              Login / Sign Up
+            </button>
+          )}
         </div>
       </div>
+
+      <UserAuthModal open={authOpen} onClose={() => setAuthOpen(false)} />
     </nav>
   );
 }

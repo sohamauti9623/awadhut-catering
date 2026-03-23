@@ -160,26 +160,85 @@ class AwadhutsAPITester:
         
         return True
 
+    def test_user_auth_api(self):
+        """Test user authentication endpoints"""
+        # Test user registration
+        user_data = {
+            "name": "Test User",
+            "email": f"testuser_{datetime.now().strftime('%H%M%S')}@example.com",
+            "password": "testpass123"
+        }
+        
+        success, user_response = self.test_api_endpoint('POST', 'auth/register', 201, user_data, "User Registration")
+        
+        if success and 'token' in user_response:
+            user_token = user_response['token']
+            print(f"🔑 User token obtained: {user_token[:20]}...")
+            
+            # Test duplicate registration
+            self.test_api_endpoint('POST', 'auth/register', 400, user_data, "Duplicate Registration (should fail)")
+            
+            # Test user login
+            login_data = {
+                "email": user_data["email"],
+                "password": user_data["password"]
+            }
+            success_login, login_response = self.test_api_endpoint('POST', 'auth/login', 200, login_data, "User Login")
+            
+            if success_login and 'token' in login_response:
+                # Test /auth/me endpoint
+                temp_headers = self.session.headers.copy()
+                self.session.headers.update({'Authorization': f'Bearer {user_token}'})
+                self.test_api_endpoint('GET', 'auth/me', 200, test_name="Get Current User Info")
+                self.session.headers = temp_headers
+                
+                return user_token
+        
+        return None
+
     def test_reviews_api(self):
-        """Test reviews API"""
+        """Test reviews API with authentication"""
         # Test GET reviews
         self.test_api_endpoint('GET', 'reviews', 200, test_name="Get All Reviews")
         self.test_api_endpoint('GET', 'reviews?approved=true', 200, test_name="Get Approved Reviews")
         
-        # Test CREATE review (public endpoint)
+        # Test CREATE review without auth (should fail)
         review_data = {
-            "name": "Test Reviewer",
             "rating": 5,
             "comment": "Excellent service! Test review from API testing.",
             "eventType": "Wedding"
         }
         
-        success, review = self.test_api_endpoint('POST', 'reviews', 201, review_data, "Create Review")
+        # Remove auth header temporarily
+        temp_headers = self.session.headers.copy()
+        if 'Authorization' in self.session.headers:
+            del self.session.headers['Authorization']
         
-        # Test admin review operations
-        if self.token and success and 'id' in review:
-            review_id = review['id']
-            self.test_api_endpoint('PUT', f'reviews/{review_id}/approve', 200, test_name="Approve Review")
+        self.test_api_endpoint('POST', 'reviews', 401, review_data, "Create Review Without Auth (should fail)")
+        
+        # Restore headers
+        self.session.headers = temp_headers
+        
+        # Test user registration and review creation
+        user_token = self.test_user_auth_api()
+        
+        if user_token:
+            # Test CREATE review with user auth
+            temp_headers = self.session.headers.copy()
+            self.session.headers.update({'Authorization': f'Bearer {user_token}'})
+            
+            success, review = self.test_api_endpoint('POST', 'reviews', 201, review_data, "Create Review With User Auth")
+            
+            # Test get my reviews
+            self.test_api_endpoint('GET', 'reviews/my', 200, test_name="Get My Reviews")
+            
+            # Restore admin headers
+            self.session.headers = temp_headers
+            
+            # Test admin review operations
+            if self.token and success and 'id' in review:
+                review_id = review['id']
+                self.test_api_endpoint('PUT', f'reviews/{review_id}/approve', 200, test_name="Approve Review (Admin)")
         
         return True
 
@@ -257,7 +316,7 @@ class AwadhutsAPITester:
             ("Admin Authentication", self.test_admin_login),
             ("Packages API", self.test_packages_api),
             ("Bookings API", self.test_bookings_api),
-            ("Reviews API", self.test_reviews_api),
+            ("Reviews API with User Auth", self.test_reviews_api),
             ("Contact API", self.test_contact_api),
             ("Gallery API", self.test_gallery_api),
             ("Listings API", self.test_listings_api),
