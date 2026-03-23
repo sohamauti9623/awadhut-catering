@@ -15,10 +15,10 @@ function AnimatedSection({ children, className = '', delay = 0 }) {
   );
 }
 
-const contactInfo = [
+  const contactInfo = [
   { icon: MapPin, title: 'Visit Us', detail: 'Near Bus Stand, Latur,\nMaharashtra 413512', color: 'bg-red-50 text-red-800' },
-  { icon: Phone, title: 'Call Us', detail: '+91 98765 43210\n+91 98765 43211', color: 'bg-amber-50 text-amber-700', link: 'tel:+919876543210' },
-  { icon: Mail, title: 'Email Us', detail: 'info@awadhutbanquets.com\nbookings@awadhutbanquets.com', color: 'bg-blue-50 text-blue-700', link: 'mailto:info@awadhutbanquets.com' },
+  { icon: Phone, title: 'Call Us', detail: '+91 97672 86040\n+91 72194 98226', color: 'bg-amber-50 text-amber-700', link: 'tel:+919767286040' },
+  { icon: Mail, title: 'Email Us', detail: 'chaitanyabanquetsmh24@gmail.com', color: 'bg-blue-50 text-blue-700', link: 'mailto:chaitanyabanquetsmh24@gmail.com' },
   { icon: Clock, title: 'Working Hours', detail: 'Monday - Sunday\n9:00 AM - 10:00 PM', color: 'bg-green-50 text-green-700' },
 ];
 

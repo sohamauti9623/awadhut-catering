@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation, Outlet } from 'react-router-dom';
-import { LayoutDashboard, Package, Image, Star, CalendarDays, LogOut, Menu, X, MessageSquare } from 'lucide-react';
+import { LayoutDashboard, Package, Image, Star, CalendarDays, LogOut, Menu, X, MessageSquare, PartyPopper } from 'lucide-react';
 import api from '../../lib/api';
 
 const sidebarLinks = [
   { name: 'Dashboard', path: '/admin', icon: LayoutDashboard },
   { name: 'Packages', path: '/admin/packages', icon: Package },
+  { name: 'Events', path: '/admin/events', icon: PartyPopper },
   { name: 'Gallery', path: '/admin/gallery', icon: Image },
   { name: 'Bookings', path: '/admin/bookings', icon: CalendarDays },
   { name: 'Reviews', path: '/admin/reviews', icon: Star },

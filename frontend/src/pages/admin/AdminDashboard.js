@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Package, Image, CalendarDays, Star, MessageSquare, TrendingUp } from 'lucide-react';
+import { Package, Image, CalendarDays, Star, MessageSquare, TrendingUp, PartyPopper } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import api from '../../lib/api';
 
@@ -28,6 +28,7 @@ export default function AdminDashboard() {
     { title: 'Gallery Items', value: stats?.totalGallery || 0, icon: Image, color: 'text-purple-600 bg-purple-50', sub: 'photos uploaded' },
     { title: 'Reviews', value: stats?.totalReviews || 0, icon: Star, color: 'text-red-600 bg-red-50', sub: `${stats?.pendingReviews || 0} pending approval` },
     { title: 'Messages', value: stats?.totalContacts || 0, icon: MessageSquare, color: 'text-teal-600 bg-teal-50', sub: 'contact messages' },
+    { title: 'Events', value: stats?.totalEvents || 0, icon: PartyPopper, color: 'text-orange-600 bg-orange-50', sub: 'upcoming events' },
   ];
 
   return (

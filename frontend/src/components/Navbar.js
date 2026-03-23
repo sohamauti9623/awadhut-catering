@@ -9,6 +9,7 @@ const navLinks = [
   { name: 'About', path: '/about' },
   { name: 'Services', path: '/services' },
   { name: 'Packages', path: '/packages' },
+  { name: 'Events', path: '/events' },
   { name: 'Gallery', path: '/gallery' },
   { name: 'Reviews', path: '/reviews' },
   { name: 'Contact', path: '/contact' },
@@ -102,7 +103,7 @@ export default function Navbar() {
             >
               Book Your Event
             </Link>
-            <a href="tel:+919876543210" className="lg:hidden p-2 rounded-full bg-stone-100 text-stone-700">
+            <a href="tel:+919767286040" className="lg:hidden p-2 rounded-full bg-stone-100 text-stone-700">
               <Phone className="w-4 h-4" />
             </a>
             <button

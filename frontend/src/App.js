@@ -20,6 +20,8 @@ import AdminGallery from './pages/admin/AdminGallery';
 import AdminBookings from './pages/admin/AdminBookings';
 import AdminReviews from './pages/admin/AdminReviews';
 import AdminMessages from './pages/admin/AdminMessages';
+import AdminEvents from './pages/admin/AdminEvents';
+import EventsPage from './pages/EventsPage';
 import { useEffect } from 'react';
 import api from './lib/api';
 
@@ -60,6 +62,7 @@ function App() {
             <Route path="bookings" element={<AdminBookings />} />
             <Route path="reviews" element={<AdminReviews />} />
             <Route path="messages" element={<AdminMessages />} />
+            <Route path="events" element={<AdminEvents />} />
           </Route>
 
           {/* Public Routes */}
@@ -69,6 +72,7 @@ function App() {
           <Route path="/packages" element={<PublicLayout><PackagesPage /></PublicLayout>} />
           <Route path="/gallery" element={<PublicLayout><GalleryPage /></PublicLayout>} />
           <Route path="/reviews" element={<PublicLayout><ReviewsPage /></PublicLayout>} />
+          <Route path="/events" element={<PublicLayout><EventsPage /></PublicLayout>} />
           <Route path="/booking" element={<PublicLayout><BookingPage /></PublicLayout>} />
           <Route path="/contact" element={<PublicLayout><ContactPage /></PublicLayout>} />
         </Routes>

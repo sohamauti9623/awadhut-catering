@@ -66,11 +66,11 @@ export default function Footer() {
               </li>
               <li className="flex items-center gap-3">
                 <PhoneIcon className="w-4 h-4 text-amber-500 flex-shrink-0" />
-                <a href="tel:+919876543210" className="text-sm text-stone-400 hover:text-amber-400 transition-colors">+91 98765 43210</a>
+                <a href="tel:+919767286040" className="text-sm text-stone-400 hover:text-amber-400 transition-colors">+91 97672 86040</a>
               </li>
               <li className="flex items-center gap-3">
                 <Mail className="w-4 h-4 text-amber-500 flex-shrink-0" />
-                <a href="mailto:info@awadhutbanquets.com" className="text-sm text-stone-400 hover:text-amber-400 transition-colors">info@awadhutbanquets.com</a>
+                <a href="mailto:chaitanyabanquetsmh24@gmail.com" className="text-sm text-stone-400 hover:text-amber-400 transition-colors">chaitanyabanquetsmh24@gmail.com</a>
               </li>
               <li className="flex items-center gap-3">
                 <Clock className="w-4 h-4 text-amber-500 flex-shrink-0" />

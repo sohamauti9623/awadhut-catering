@@ -77,7 +77,7 @@ export default function AdminLogin() {
             </button>
           </form>
         </div>
-        <p className="text-center text-xs text-stone-400 mt-4">Default: admin@awadhut.com / admin123</p>
+        <p className="text-center text-xs text-stone-400 mt-4">Admin access only</p>
       </div>
     </div>
   );

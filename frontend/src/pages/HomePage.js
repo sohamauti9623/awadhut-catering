@@ -249,7 +249,7 @@ export default function HomePage() {
                       Book Now <ArrowRight className="w-4 h-4" />
                     </Link>
                     <a
-                      href="tel:+919876543210"
+                      href="tel:+919767286040"
                       className="inline-flex items-center gap-2 bg-transparent text-white px-8 py-4 rounded-full text-sm font-medium border border-white/50 transition-all duration-300 hover:bg-white/10"
                     >
                       Call Us

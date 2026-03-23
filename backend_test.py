@@ -73,18 +73,21 @@ class AwadhutsAPITester:
         return self.test_api_endpoint('GET', '', 200, test_name="API Health Check")
 
     def test_admin_login(self):
-        """Test admin authentication"""
+        """Test admin authentication with new credentials"""
         login_data = {
-            "email": "admin@awadhut.com",
-            "password": "admin123"
+            "email": "chaitanyabanquetsmh24@gmail.com",
+            "password": "Soham@123123"
         }
         
-        success, response = self.test_api_endpoint('POST', 'auth/login', 200, login_data, "Admin Login")
+        success, response = self.test_api_endpoint('POST', 'auth/login', 200, login_data, "Admin Login (New Credentials)")
         
         if success and 'token' in response:
             self.token = response['token']
             self.session.headers.update({'Authorization': f'Bearer {self.token}'})
             print(f"🔑 Admin token obtained: {self.token[:20]}...")
+            print(f"👤 Admin name: {response.get('name', 'N/A')}")
+            print(f"📧 Admin email: {response.get('email', 'N/A')}")
+            print(f"🔐 Admin role: {response.get('role', 'N/A')}")
             return True
         return False
 
@@ -297,6 +300,71 @@ class AwadhutsAPITester:
             return success
         return False
 
+    def test_events_api(self):
+        """Test events CRUD operations"""
+        # Test GET all events
+        success, events = self.test_api_endpoint('GET', 'events', 200, test_name="Get All Events")
+        if not success:
+            return False
+            
+        print(f"🎉 Found {len(events)} events")
+        
+        # Test GET active events only
+        self.test_api_endpoint('GET', 'events?active_only=true', 200, test_name="Get Active Events Only")
+        
+        # Test GET specific event (if events exist)
+        if events and len(events) > 0:
+            event_id = events[0]['id']
+            self.test_api_endpoint('GET', f'events/{event_id}', 200, test_name="Get Specific Event")
+        
+        # Test CREATE event (requires admin auth)
+        if self.token:
+            new_event = {
+                "title": "Test Event - API Testing",
+                "description": "This is a test event created during API testing",
+                "eventDate": "2026-03-15",
+                "eventTime": "6:00 PM onwards",
+                "venue": "Awadhut Banquets, Latur",
+                "image": "https://images.unsplash.com/photo-1587271636175-90d58cdad458?w=800",
+                "price": 500,
+                "capacity": 100,
+                "isActive": True
+            }
+            success, created_event = self.test_api_endpoint('POST', 'events', 201, new_event, "Create Event")
+            
+            if success and 'id' in created_event:
+                event_id = created_event['id']
+                
+                # Test UPDATE event
+                update_data = {"title": "Updated Test Event", "price": 600}
+                self.test_api_endpoint('PUT', f'events/{event_id}', 200, update_data, "Update Event")
+                
+                # Test DELETE event
+                self.test_api_endpoint('DELETE', f'events/{event_id}', 200, test_name="Delete Event")
+        
+        return True
+
+    def test_cloudinary_signature(self):
+        """Test Cloudinary signature endpoint (admin only)"""
+        if self.token:
+            success, signature_data = self.test_api_endpoint('GET', 'cloudinary/signature', 200, test_name="Get Cloudinary Signature")
+            if success:
+                required_fields = ['signature', 'timestamp', 'cloud_name', 'api_key', 'folder']
+                for field in required_fields:
+                    if field not in signature_data:
+                        self.log_result(f"Cloudinary Signature - {field}", False, None, f"Missing field: {field}")
+                    else:
+                        if field == 'cloud_name':
+                            expected_cloud = 'djivzwgi0'
+                            actual_cloud = signature_data[field]
+                            if actual_cloud == expected_cloud:
+                                print(f"☁️ Cloud name correct: {actual_cloud}")
+                            else:
+                                self.log_result("Cloudinary Cloud Name", False, None, f"Expected {expected_cloud}, got {actual_cloud}")
+                        else:
+                            print(f"🔑 {field}: {signature_data[field]}")
+            return success
+        return False
     def test_listings_api(self):
         """Test listings/services API"""
         self.test_api_endpoint('GET', 'listings', 200, test_name="Get All Listings")
@@ -314,6 +382,8 @@ class AwadhutsAPITester:
         test_sequence = [
             ("API Health Check", self.test_health_check),
             ("Admin Authentication", self.test_admin_login),
+            ("Events API", self.test_events_api),
+            ("Cloudinary Signature", self.test_cloudinary_signature),
             ("Packages API", self.test_packages_api),
             ("Bookings API", self.test_bookings_api),
             ("Reviews API with User Auth", self.test_reviews_api),

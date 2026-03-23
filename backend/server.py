@@ -134,6 +134,28 @@ class ContactCreate(BaseModel):
     subject: str = ""
     message: str
 
+class EventCreate(BaseModel):
+    title: str
+    description: str
+    eventDate: str
+    eventTime: str = ""
+    venue: str = "Awadhut Banquets, Latur"
+    image: str = ""
+    price: Optional[float] = None
+    capacity: Optional[int] = None
+    isActive: bool = True
+
+class EventUpdate(BaseModel):
+    title: Optional[str] = None
+    description: Optional[str] = None
+    eventDate: Optional[str] = None
+    eventTime: Optional[str] = None
+    venue: Optional[str] = None
+    image: Optional[str] = None
+    price: Optional[float] = None
+    capacity: Optional[int] = None
+    isActive: Optional[bool] = None
+
 # ─── Auth Routes ───
 @api_router.post("/auth/login")
 async def login(data: AdminLogin):
@@ -358,6 +380,50 @@ async def get_contacts(admin=Depends(get_current_admin)):
     contacts = await db.contacts.find({}, {"_id": 0}).sort("createdAt", -1).to_list(100)
     return contacts
 
+# ─── Events Routes ───
+@api_router.get("/events")
+async def get_events(active_only: Optional[bool] = None):
+    query = {}
+    if active_only:
+        query["isActive"] = True
+    events = await db.events.find(query, {"_id": 0}).sort("eventDate", 1).to_list(50)
+    return events
+
+@api_router.get("/events/{event_id}")
+async def get_event(event_id: str):
+    event = await db.events.find_one({"id": event_id}, {"_id": 0})
+    if not event:
+        raise HTTPException(status_code=404, detail="Event not found")
+    return event
+
+@api_router.post("/events", status_code=201)
+async def create_event(data: EventCreate, admin=Depends(get_current_admin)):
+    doc = data.model_dump()
+    doc["id"] = str(uuid.uuid4())
+    doc["createdAt"] = datetime.now(timezone.utc).isoformat()
+    await db.events.insert_one(doc)
+    doc.pop("_id", None)
+    return doc
+
+@api_router.put("/events/{event_id}")
+async def update_event(event_id: str, data: EventUpdate, admin=Depends(get_current_admin)):
+    update_data = {k: v for k, v in data.model_dump().items() if v is not None}
+    if not update_data:
+        raise HTTPException(status_code=400, detail="No fields to update")
+    update_data["updatedAt"] = datetime.now(timezone.utc).isoformat()
+    result = await db.events.update_one({"id": event_id}, {"$set": update_data})
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Event not found")
+    event = await db.events.find_one({"id": event_id}, {"_id": 0})
+    return event
+
+@api_router.delete("/events/{event_id}")
+async def delete_event(event_id: str, admin=Depends(get_current_admin)):
+    result = await db.events.delete_one({"id": event_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Event not found")
+    return {"message": "Event deleted"}
+
 # ─── Dashboard Stats ───
 @api_router.get("/dashboard/stats")
 async def get_dashboard_stats(admin=Depends(get_current_admin)):
@@ -369,6 +435,7 @@ async def get_dashboard_stats(admin=Depends(get_current_admin)):
     pending_reviews = await db.reviews.count_documents({"approved": False})
     total_gallery = await db.gallery.count_documents({})
     total_contacts = await db.contacts.count_documents({})
+    total_events = await db.events.count_documents({})
     
     # Basic revenue from confirmed bookings
     bookings = await db.bookings.find({"status": {"$in": ["confirmed", "completed"]}}, {"_id": 0, "packageId": 1}).to_list(500)
@@ -387,6 +454,7 @@ async def get_dashboard_stats(admin=Depends(get_current_admin)):
         "pendingReviews": pending_reviews,
         "totalGallery": total_gallery,
         "totalContacts": total_contacts,
+        "totalEvents": total_events,
         "estimatedRevenue": revenue
     }
 
@@ -422,13 +490,13 @@ async def seed_data():
         return {"message": "Data already seeded", "packages": existing}
     
     # Create admin user
-    admin_exists = await db.users.find_one({"email": "admin@awadhut.com"})
+    admin_exists = await db.users.find_one({"email": "chaitanyabanquetsmh24@gmail.com"})
     if not admin_exists:
         await db.users.insert_one({
             "id": str(uuid.uuid4()),
-            "name": "Admin",
-            "email": "admin@awadhut.com",
-            "password": hash_password("admin123"),
+            "name": "Soham",
+            "email": "chaitanyabanquetsmh24@gmail.com",
+            "password": hash_password("Soham@123123"),
             "role": "admin",
             "createdAt": datetime.now(timezone.utc).isoformat()
         })
@@ -484,6 +552,24 @@ async def seed_data():
 @api_router.get("/")
 async def root():
     return {"message": "Awadhut Banquets & Catering API", "status": "running"}
+
+# ─── Admin Migration ───
+@api_router.post("/migrate-admin")
+async def migrate_admin():
+    # Update or create new admin
+    existing = await db.users.find_one({"email": "chaitanyabanquetsmh24@gmail.com"})
+    if not existing:
+        await db.users.insert_one({
+            "id": str(uuid.uuid4()),
+            "name": "Soham",
+            "email": "chaitanyabanquetsmh24@gmail.com",
+            "password": hash_password("Soham@123123"),
+            "role": "admin",
+            "createdAt": datetime.now(timezone.utc).isoformat()
+        })
+    # Remove old admin if exists
+    await db.users.delete_many({"email": "admin@awadhut.com"})
+    return {"message": "Admin migrated to chaitanyabanquetsmh24@gmail.com"}
 
 # Include router and middleware
 app.include_router(api_router)
