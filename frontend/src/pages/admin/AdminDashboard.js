@@ -8,8 +8,12 @@ export default function AdminDashboard() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    api.get('/dashboard/stats')
-      .then(r => { setStats(r.data); setLoading(false); })
+    // Note: ensure this matches your AuthContext prefix (/api)
+    api.get('/api/dashboard/stats') 
+      .then(r => { 
+        setStats(r.data); 
+        setLoading(false); 
+      })
       .catch(() => setLoading(false));
   }, []);
 
@@ -27,7 +31,7 @@ export default function AdminDashboard() {
     { title: 'Packages', value: stats?.totalPackages || 0, icon: Package, color: 'text-amber-600 bg-amber-50', sub: 'active packages' },
     { title: 'Gallery Items', value: stats?.totalGallery || 0, icon: Image, color: 'text-purple-600 bg-purple-50', sub: 'photos uploaded' },
     { title: 'Reviews', value: stats?.totalReviews || 0, icon: Star, color: 'text-red-600 bg-red-50', sub: `${stats?.pendingReviews || 0} pending approval` },
-    { title: 'Messages', value: stats?.totalContacts || 0, icon: MessageSquare, color: 'text-teal-600 bg-teal-50', sub: 'contact messages' },
+    { title: 'Messages', value: stats?.totalMessages || 0, icon: MessageSquare, color: 'text-teal-600 bg-teal-50', sub: 'contact messages' },
     { title: 'Events', value: stats?.totalEvents || 0, icon: PartyPopper, color: 'text-orange-600 bg-orange-50', sub: 'upcoming events' },
   ];
 
@@ -54,18 +58,6 @@ export default function AdminDashboard() {
           </Card>
         ))}
       </div>
-
-      {stats?.estimatedRevenue > 0 && (
-        <Card className="mt-6 border border-stone-200 shadow-none">
-          <CardHeader>
-            <CardTitle className="text-sm font-medium text-stone-500">Estimated Revenue</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-3xl font-bold text-stone-900">Rs {stats.estimatedRevenue.toLocaleString('en-IN')}</p>
-            <p className="text-xs text-stone-400 mt-1">From confirmed and completed bookings</p>
-          </CardContent>
-        </Card>
-      )}
     </div>
   );
 }

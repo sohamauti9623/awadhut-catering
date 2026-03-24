@@ -1,3 +1,4 @@
+// src/App.js
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { Toaster } from 'sonner';
 import { AuthProvider } from './contexts/AuthContext';
@@ -27,12 +28,13 @@ import api from './lib/api';
 
 function PublicLayout({ children }) {
   return (
-    <>
+    <div className="flex flex-col min-h-screen">
       <Navbar />
-      <main className="min-h-screen">{children}</main>
+      {/* Ensure main starts below a fixed navbar or handles its own space */}
+      <main className="flex-grow">{children}</main>
       <Footer />
       <FloatingButtons />
-    </>
+    </div>
   );
 }
 
@@ -43,20 +45,24 @@ function ScrollToTop() {
 }
 
 function App() {
-  // Seed data on first load
+  // Fix: Seed data using GET request to match backend
   useEffect(() => {
-    api.post('/seed').catch(() => {});
+    api.get('/seed').catch(() => {});
   }, []);
 
   return (
     <AuthProvider>
       <BrowserRouter>
+        <ScrollToTop />
         <Toaster position="top-right" richColors />
         <Routes>
           {/* Admin Routes */}
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/admin" element={<AdminLayout />}>
-            <Route index element={<AdminDashboard />} />
+            {/* Matches /admin */}
+            <Route index element={<AdminDashboard />} /> 
+            {/* Matches /admin/dashboard - Added to fix blank screen */}
+            <Route path="dashboard" element={<AdminDashboard />} /> 
             <Route path="packages" element={<AdminPackages />} />
             <Route path="gallery" element={<AdminGallery />} />
             <Route path="bookings" element={<AdminBookings />} />

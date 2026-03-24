@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Plus, Pencil, Trash2 } from 'lucide-react';
+import { Plus, Pencil, Trash2, Upload } from 'lucide-react'; // Added Upload icon
 import { Input } from '../../components/ui/input';
 import { Textarea } from '../../components/ui/textarea';
 import { Switch } from '../../components/ui/switch';
@@ -16,39 +16,55 @@ export default function AdminEvents() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState(null);
   const [form, setForm] = useState(emptyEvent);
+  const [uploading, setUploading] = useState(false); // New uploading state
 
   const fetchEvents = () => {
+    setLoading(true);
     api.get('/events').then(r => { setEvents(r.data); setLoading(false); }).catch(() => setLoading(false));
   };
 
   useEffect(() => { fetchEvents(); }, []);
 
-  const openCreate = () => { setEditing(null); setForm(emptyEvent); setDialogOpen(true); };
-
-  const openEdit = (event) => {
-    setEditing(event.id);
-    setForm({
-      title: event.title, description: event.description,
-      eventDate: event.eventDate, eventTime: event.eventTime || '',
-      venue: event.venue, image: event.image || '',
-      price: event.price ? event.price.toString() : '',
-      capacity: event.capacity ? event.capacity.toString() : '',
-      isActive: event.isActive,
-    });
-    setDialogOpen(true);
+  // --- Same Cloudinary Logic as AdminGallery ---
+  const handleFileUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    try {
+      const sigRes = await api.get('/cloudinary/signature?folder=awadhut-events');
+      const sig = sigRes.data;
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('api_key', sig.api_key);
+      formData.append('timestamp', sig.timestamp);
+      formData.append('signature', sig.signature);
+      formData.append('folder', sig.folder);
+      
+      const uploadRes = await fetch(`https://api.cloudinary.com/v1_1/${sig.cloud_name}/image/upload`, { 
+        method: 'POST', 
+        body: formData 
+      });
+      const data = await uploadRes.json();
+      if (data.secure_url) {
+        setForm(prev => ({ ...prev, image: data.secure_url })); // Sets the "image" field
+        toast.success('Event image uploaded!');
+      } else {
+        toast.error('Upload failed. Please enter URL manually.');
+      }
+    } catch (err) {
+      toast.error('Cloudinary upload failed.');
+    }
+    setUploading(false);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!form.title || !form.eventDate) { toast.error('Title and date are required'); return; }
     const payload = {
-      title: form.title, description: form.description,
-      eventDate: form.eventDate, eventTime: form.eventTime,
-      venue: form.venue, image: form.image,
+      ...form,
       price: form.price ? parseFloat(form.price) : null,
       capacity: form.capacity ? parseInt(form.capacity) : null,
-      isActive: form.isActive,
     };
+
     try {
       if (editing) {
         await api.put(`/events/${editing}`, payload);
@@ -78,55 +94,36 @@ export default function AdminEvents() {
   const update = (key, val) => setForm(prev => ({ ...prev, [key]: val }));
 
   return (
-    <div data-testid="admin-events">
+    <div className="p-6">
       <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-xl font-bold text-stone-900">Events</h1>
-          <p className="text-sm text-stone-500">Manage upcoming events and celebrations</p>
-        </div>
-        <button
-          data-testid="add-event-btn"
-          onClick={openCreate}
-          className="flex items-center gap-2 bg-red-800 text-white px-4 py-2.5 rounded-lg text-sm font-medium hover:bg-red-900 transition-colors"
-        >
-          <Plus className="w-4 h-4" /> Add Event
+        <h1 className="text-2xl font-bold">Events Management</h1>
+        <button onClick={() => { setEditing(null); setForm(emptyEvent); setDialogOpen(true); }} className="bg-red-800 text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-red-900 transition-colors">
+          <Plus size={18} /> Add Event
         </button>
       </div>
 
       {loading ? (
-        <div className="space-y-3">{[1,2].map(i => <div key={i} className="h-16 rounded-lg bg-stone-100 animate-pulse" />)}</div>
-      ) : events.length === 0 ? (
-        <div className="text-center py-20 text-stone-400">No events yet. Create your first event!</div>
+        <div className="animate-pulse space-y-4"><div className="h-12 bg-stone-100 rounded w-full"></div></div>
       ) : (
-        <div className="border border-stone-200 rounded-lg overflow-hidden bg-white">
+        <div className="bg-white rounded-xl border border-stone-200 overflow-hidden">
           <Table>
             <TableHeader>
               <TableRow>
                 <TableHead>Title</TableHead>
                 <TableHead>Date</TableHead>
-                <TableHead>Venue</TableHead>
-                <TableHead>Price</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {events.map(event => (
-                <TableRow key={event.id} data-testid={`event-row-${event.id}`}>
-                  <TableCell className="font-medium text-stone-900">{event.title}</TableCell>
-                  <TableCell className="text-sm">{event.eventDate}{event.eventTime ? ` at ${event.eventTime}` : ''}</TableCell>
-                  <TableCell className="text-sm text-stone-500">{event.venue}</TableCell>
-                  <TableCell className="text-sm">{event.price ? `Rs ${event.price.toLocaleString('en-IN')}` : 'Free'}</TableCell>
-                  <TableCell>
-                    {event.isActive ? (
-                      <span className="text-xs px-2 py-1 rounded-full bg-green-50 text-green-700 border border-green-200">Active</span>
-                    ) : (
-                      <span className="text-xs px-2 py-1 rounded-full bg-stone-100 text-stone-500">Inactive</span>
-                    )}
-                  </TableCell>
+                <TableRow key={event.id}>
+                  <TableCell className="font-medium">{event.title}</TableCell>
+                  <TableCell>{event.eventDate}</TableCell>
+                  <TableCell>{event.isActive ? 'Active' : 'Inactive'}</TableCell>
                   <TableCell className="text-right">
-                    <button data-testid={`edit-event-${event.id}`} onClick={() => openEdit(event)} className="p-1.5 rounded hover:bg-stone-100 text-stone-500 mr-1"><Pencil className="w-4 h-4" /></button>
-                    <button data-testid={`delete-event-${event.id}`} onClick={() => handleDelete(event.id)} className="p-1.5 rounded hover:bg-red-50 text-red-500"><Trash2 className="w-4 h-4" /></button>
+                    <button onClick={() => { setEditing(event.id); setForm(event); setDialogOpen(true); }} className="p-2 hover:bg-stone-100 rounded-lg mr-2"><Pencil size={16} /></button>
+                    <button onClick={() => handleDelete(event.id)} className="p-2 hover:bg-red-50 text-red-600 rounded-lg"><Trash2 size={16} /></button>
                   </TableCell>
                 </TableRow>
               ))}
@@ -136,56 +133,52 @@ export default function AdminEvents() {
       )}
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>{editing ? 'Edit Event' : 'Create Event'}</DialogTitle>
-          </DialogHeader>
-          <form onSubmit={handleSubmit} className="space-y-4 mt-4">
+        <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
+          <DialogHeader><DialogTitle>{editing ? 'Edit Event' : 'Create New Event'}</DialogTitle></DialogHeader>
+          <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="text-sm font-medium text-stone-700 mb-1 block">Event Title *</label>
-              <Input data-testid="event-title-input" value={form.title} onChange={e => update('title', e.target.value)} placeholder="e.g., Holi Celebration 2026" />
+               <label className="text-xs font-bold uppercase text-stone-500 mb-1 block">Title</label>
+               <Input placeholder="Event Title" value={form.title} onChange={e => update('title', e.target.value)} required />
             </div>
-            <div>
-              <label className="text-sm font-medium text-stone-700 mb-1 block">Description</label>
-              <Textarea data-testid="event-desc-input" value={form.description} onChange={e => update('description', e.target.value)} placeholder="Describe the event..." rows={3} />
-            </div>
+            
+            <Textarea placeholder="Description" value={form.description} onChange={e => update('description', e.target.value)} />
+            
             <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="text-sm font-medium text-stone-700 mb-1 block">Event Date *</label>
-                <Input data-testid="event-date-input" type="date" value={form.eventDate} onChange={e => update('eventDate', e.target.value)} />
-              </div>
-              <div>
-                <label className="text-sm font-medium text-stone-700 mb-1 block">Time</label>
-                <Input data-testid="event-time-input" value={form.eventTime} onChange={e => update('eventTime', e.target.value)} placeholder="e.g., 6:00 PM onwards" />
-              </div>
+              <Input type="date" value={form.eventDate} onChange={e => update('eventDate', e.target.value)} required />
+              <Input type="time" value={form.eventTime} onChange={e => update('eventTime', e.target.value)} />
             </div>
+
+            {/* --- NEW: Cloudinary Upload Section --- */}
             <div>
-              <label className="text-sm font-medium text-stone-700 mb-1 block">Venue</label>
-              <Input value={form.venue} onChange={e => update('venue', e.target.value)} placeholder="Venue location" />
+              <label className="text-xs font-bold uppercase text-stone-500 mb-1 block">Event Image</label>
+              <div className="flex gap-2 mb-2">
+                <label className="flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg border-2 border-dashed border-stone-200 text-sm text-stone-600 cursor-pointer hover:bg-stone-50 transition-colors">
+                  <Upload className="w-4 h-4" />
+                  {uploading ? 'Uploading...' : 'Choose File'}
+                  <input type="file" accept="image/*" onChange={handleFileUpload} className="hidden" />
+                </label>
+              </div>
+              <Input placeholder="Or paste image URL" value={form.image} onChange={e => update('image', e.target.value)} />
+              {form.image && (
+                <div className="mt-2 relative rounded-lg overflow-hidden border border-stone-200 aspect-video">
+                  <img src={form.image} alt="Preview" className="w-full h-full object-cover" />
+                </div>
+              )}
             </div>
+
             <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="text-sm font-medium text-stone-700 mb-1 block">Price (Rs)</label>
-                <Input type="number" value={form.price} onChange={e => update('price', e.target.value)} placeholder="0 for free" />
-              </div>
-              <div>
-                <label className="text-sm font-medium text-stone-700 mb-1 block">Capacity</label>
-                <Input type="number" value={form.capacity} onChange={e => update('capacity', e.target.value)} placeholder="Max people" />
-              </div>
+               <Input type="number" placeholder="Price (₹)" value={form.price} onChange={e => update('price', e.target.value)} />
+               <Input type="number" placeholder="Capacity" value={form.capacity} onChange={e => update('capacity', e.target.value)} />
             </div>
-            <div>
-              <label className="text-sm font-medium text-stone-700 mb-1 block">Event Image URL</label>
-              <Input value={form.image} onChange={e => update('image', e.target.value)} placeholder="https://..." />
-              {form.image && <img src={form.image} alt="Preview" className="mt-2 w-full h-32 object-cover rounded-lg" />}
-            </div>
-            <div className="flex items-center gap-3">
+
+            <div className="flex items-center gap-2 p-2 bg-stone-50 rounded-lg">
               <Switch checked={form.isActive} onCheckedChange={v => update('isActive', v)} />
-              <label className="text-sm text-stone-700">Active (visible to public)</label>
+              <span className="text-sm font-medium text-stone-600">Visible to Public</span>
             </div>
-            <div className="flex gap-3 pt-2">
-              <button type="button" onClick={() => setDialogOpen(false)} className="flex-1 py-2.5 rounded-lg border border-stone-200 text-sm font-medium text-stone-600 hover:bg-stone-50">Cancel</button>
-              <button type="submit" data-testid="save-event-btn" className="flex-1 py-2.5 rounded-lg bg-red-800 text-white text-sm font-medium hover:bg-red-900">{editing ? 'Update' : 'Create'}</button>
-            </div>
+
+            <button type="submit" className="w-full bg-red-800 text-white py-2.5 rounded-lg font-semibold hover:bg-red-900 transition-colors">
+              {editing ? 'Update Event' : 'Create Event'}
+            </button>
           </form>
         </DialogContent>
       </Dialog>

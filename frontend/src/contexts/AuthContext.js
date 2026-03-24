@@ -8,11 +8,19 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const token = localStorage.getItem('userToken');
-    if (token) {
+    const token = localStorage.getItem('token');
+    const savedUser = localStorage.getItem('user');
+    
+    if (token && savedUser) {
+      setUser(JSON.parse(savedUser));
+      // Changed from '/api/auth/me' to '/auth/me'
       api.get('/auth/me', { headers: { Authorization: `Bearer ${token}` } })
-        .then(r => setUser({ ...r.data, token }))
-        .catch(() => { localStorage.removeItem('userToken'); })
+        .then(r => {
+          const userData = { ...r.data, token };
+          setUser(userData);
+          localStorage.setItem('user', JSON.stringify(userData));
+        })
+        .catch(() => logout())
         .finally(() => setLoading(false));
     } else {
       setLoading(false);
@@ -20,33 +28,32 @@ export function AuthProvider({ children }) {
   }, []);
 
   const login = async (email, password) => {
+    // Hits /api/auth/login correctly now
     const { data } = await api.post('/auth/login', { email, password });
-    if (data.role === 'admin') {
-      // Admin login goes to admin panel
-      localStorage.setItem('adminToken', data.token);
-      localStorage.setItem('adminName', data.name);
-      return { ...data, isAdmin: true };
-    }
-    localStorage.setItem('userToken', data.token);
-    setUser({ ...data, token: data.token });
+    localStorage.setItem('token', data.token);
+    localStorage.setItem('user', JSON.stringify(data));
+    setUser(data);
     return data;
   };
 
   const register = async (name, email, password) => {
     const { data } = await api.post('/auth/register', { name, email, password });
-    localStorage.setItem('userToken', data.token);
-    setUser({ ...data, token: data.token });
+    localStorage.setItem('token', data.token);
+    localStorage.setItem('user', JSON.stringify(data));
+    setUser(data);
     return data;
   };
 
   const logout = () => {
-    localStorage.removeItem('userToken');
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
     setUser(null);
+    window.location.href = '/';
   };
 
   return (
     <AuthContext.Provider value={{ user, loading, login, register, logout }}>
-      {children}
+      {!loading && children}
     </AuthContext.Provider>
   );
 }
