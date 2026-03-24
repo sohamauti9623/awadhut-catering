@@ -27,8 +27,8 @@ export default function AdminLogin() {
   };
 
   return (
-    <div data-testid="admin-login-page" className="min-h-screen flex items-center justify-center bg-stone-50 px-4">
-      <div className="w-full max-w-md">
+    <div data-testid="admin-login-page" className="min-h-screen flex items-center justify-center bg-gradient-to-br from-stone-100 via-white to-stone-100 px-4 py-8">
+      <div className="w-full max-w-md my-auto">
         <div className="text-center mb-8">
           <div className="w-16 h-16 rounded-full bg-red-800 flex items-center justify-center mx-auto mb-4">
             <span className="text-white font-serif font-bold text-2xl">A</span>
