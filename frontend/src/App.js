@@ -5,6 +5,7 @@ import { AuthProvider } from './contexts/AuthContext';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import FloatingButtons from './components/FloatingButtons';
+import ScrollDecor from './components/ScrollDecor';
 import HomePage from './pages/HomePage';
 import AboutPage from './pages/AboutPage';
 import ServicesPage from './pages/ServicesPage';
@@ -30,6 +31,7 @@ function PublicLayout({ children }) {
   return (
     <div className="flex flex-col min-h-screen">
       <Navbar />
+      <ScrollDecor />
       {/* Ensure main starts below a fixed navbar or handles its own space */}
       <main className="flex-grow">{children}</main>
       <Footer />
