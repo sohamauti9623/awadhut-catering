@@ -1,6 +1,8 @@
 import { Link } from 'react-router-dom';
 import { MapPin, Phone as PhoneIcon, Mail, Clock } from 'lucide-react';
 
+const MAPS_URL = 'https://maps.app.goo.gl/RJ86S8f5RvxPYuva6?g_st=atm';
+
 export default function Footer() {
   return (
     <footer data-testid="main-footer" className="bg-stone-900 text-stone-300">
@@ -62,7 +64,14 @@ export default function Footer() {
             <ul className="space-y-3">
               <li className="flex items-start gap-3">
                 <MapPin className="w-4 h-4 text-amber-500 mt-0.5 flex-shrink-0" />
-                <span className="text-sm text-stone-400">Near Bus Stand, Latur, Maharashtra 413512</span>
+                <a
+                  href={MAPS_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sm text-stone-400 hover:text-amber-400 transition-colors"
+                >
+                  Near Bus Stand, Latur, Maharashtra 413512
+                </a>
               </li>
               <li className="flex items-center gap-3">
                 <PhoneIcon className="w-4 h-4 text-amber-500 flex-shrink-0" />
