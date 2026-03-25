@@ -30,6 +30,15 @@ export default function Navbar() {
 
   useEffect(() => { setOpen(false); }, [location]);
 
+  useEffect(() => {
+    if (!open) return undefined;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [open]);
+
   return (
     <nav
       data-testid="main-navbar"
@@ -132,47 +141,45 @@ export default function Navbar() {
       </div>
 
       {/* Mobile Menu */}
-      <div
-        className={`lg:hidden overflow-hidden transition-all duration-300 ${
-          open ? 'max-h-[420px] opacity-100' : 'max-h-0 opacity-0'
-        }`}
-      >
-        <div className="bg-white/90 backdrop-blur-xl border-t border-stone-200/50 px-4 py-4 space-y-1">
-          {navLinks.map((link) => (
+      {open && (
+        <div className="lg:hidden fixed inset-0 top-16 sm:top-20 z-30 bg-white/95 backdrop-blur-xl border-t border-stone-200/50 overflow-y-auto">
+          <div className="px-4 py-4 space-y-1 min-h-full">
+            {navLinks.map((link) => (
+              <Link
+                key={link.path}
+                to={link.path}
+                data-testid={`mobile-nav-${link.name.toLowerCase()}`}
+                className={`block px-4 py-3 rounded-xl text-sm font-medium transition-colors ${
+                  location.pathname === link.path
+                    ? 'text-red-800 bg-red-50'
+                    : 'text-stone-600 hover:bg-stone-50'
+                }`}
+              >
+                {link.name}
+              </Link>
+            ))}
             <Link
-              key={link.path}
-              to={link.path}
-              data-testid={`mobile-nav-${link.name.toLowerCase()}`}
-              className={`block px-4 py-3 rounded-xl text-sm font-medium transition-colors ${
-                location.pathname === link.path
-                  ? 'text-red-800 bg-red-50'
-                  : 'text-stone-600 hover:bg-stone-50'
-              }`}
+              to="/booking"
+              className="block mt-3 text-center text-white px-5 py-3 rounded-xl text-sm font-semibold btn-liquid bg-gradient-to-r from-red-800 via-red-700 to-amber-700"
             >
-              {link.name}
+              Book Your Event
             </Link>
-          ))}
-          <Link
-            to="/booking"
-            className="block mt-3 text-center text-white px-5 py-3 rounded-xl text-sm font-semibold btn-liquid bg-gradient-to-r from-red-800 via-red-700 to-amber-700"
-          >
-            Book Your Event
-          </Link>
-          {user ? (
-            <div className="flex items-center justify-between mt-3 px-4 py-3 rounded-xl bg-stone-50">
-              <span className="text-sm text-stone-600">{user.name}</span>
-              <button onClick={logout} className="text-xs text-red-600">Logout</button>
-            </div>
-          ) : (
-            <button
-              onClick={() => setAuthOpen(true)}
-              className="block mt-2 w-full text-center border border-stone-200 text-stone-700 px-5 py-3 rounded-xl text-sm font-medium"
-            >
-              Login / Sign Up
-            </button>
-          )}
+            {user ? (
+              <div className="flex items-center justify-between mt-3 px-4 py-3 rounded-xl bg-stone-50">
+                <span className="text-sm text-stone-600">{user.name}</span>
+                <button onClick={logout} className="text-xs text-red-600">Logout</button>
+              </div>
+            ) : (
+              <button
+                onClick={() => setAuthOpen(true)}
+                className="block mt-2 w-full text-center border border-stone-200 text-stone-700 px-5 py-3 rounded-xl text-sm font-medium"
+              >
+                Login / Sign Up
+              </button>
+            )}
+          </div>
         </div>
-      </div>
+      )}
 
       <UserAuthModal open={authOpen} onClose={() => setAuthOpen(false)} />
     </nav>
