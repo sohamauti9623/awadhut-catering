@@ -1,10 +1,11 @@
 // src/App.js
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { Toaster } from 'sonner';
 import { AuthProvider } from './contexts/AuthContext';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import FloatingButtons from './components/FloatingButtons';
+import ScrollDecor from './components/ScrollDecor';
 import HomePage from './pages/HomePage';
 import AboutPage from './pages/AboutPage';
 import ServicesPage from './pages/ServicesPage';
@@ -28,9 +29,9 @@ import api from './lib/api';
 
 function PublicLayout({ children }) {
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="site-shell flex flex-col min-h-screen">
       <Navbar />
-      {/* Ensure main starts below a fixed navbar or handles its own space */}
+      <ScrollDecor />
       <main className="flex-grow">{children}</main>
       <Footer />
       <FloatingButtons />
@@ -39,7 +40,7 @@ function PublicLayout({ children }) {
 }
 
 function ScrollToTop() {
-  const { pathname } = window.location;
+  const { pathname } = useLocation();
   useEffect(() => { window.scrollTo(0, 0); }, [pathname]);
   return null;
 }

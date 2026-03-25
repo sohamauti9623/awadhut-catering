@@ -9,7 +9,7 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     // Note: ensure this matches your AuthContext prefix (/api)
-    api.get('/api/dashboard/stats') 
+    api.get('/dashboard/stats') 
       .then(r => { 
         setStats(r.data); 
         setLoading(false); 
