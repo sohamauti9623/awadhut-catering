@@ -91,13 +91,24 @@ export default function Navbar() {
                 </button>
               </div>
             ) : (
-              <button
-                data-testid="navbar-login-btn"
-                onClick={() => setAuthOpen(true)}
-                className="hidden sm:inline-flex items-center gap-2 text-stone-600 hover:text-stone-900 px-3 py-2 rounded-lg text-sm font-medium transition-colors"
-              >
-                <User className="w-4 h-4" /> Login
-              </button>
+              <>
+                <button
+                  data-testid="navbar-login-btn"
+                  onClick={() => setAuthOpen(true)}
+                  className="hidden sm:inline-flex items-center gap-2 text-stone-600 hover:text-stone-900 px-3 py-2 rounded-lg text-sm font-medium transition-colors"
+                >
+                  <User className="w-4 h-4" /> Login
+                </button>
+                <button
+                  data-testid="navbar-login-mobile-btn"
+                  onClick={() => setAuthOpen(true)}
+                  className="sm:hidden p-2 rounded-full bg-stone-100 text-stone-700 border border-stone-200/80"
+                  title="Login"
+                  aria-label="Login"
+                >
+                  <User className="w-4 h-4" />
+                </button>
+              </>
             )}
             <Link
               to="/booking"
