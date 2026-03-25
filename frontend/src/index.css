@@ -11,10 +11,10 @@ body {
   -moz-osx-font-smoothing: grayscale;
   background-color: #f8f5f1;
   background-image:
-    radial-gradient(1200px 700px at 8% -12%, rgba(220, 38, 38, 0.10), transparent 55%),
-    radial-gradient(900px 520px at 92% 0%, rgba(217, 119, 6, 0.10), transparent 52%),
-    radial-gradient(900px 680px at 50% 120%, rgba(148, 163, 184, 0.08), transparent 56%),
-    linear-gradient(180deg, #fcfbfa 0%, #f7f3ee 58%, #f4efe8 100%);
+    radial-gradient(1200px 700px at 8% -12%, rgba(220, 38, 38, 0.20), transparent 55%),
+    radial-gradient(900px 520px at 92% 0%, rgba(217, 119, 6, 0.18), transparent 52%),
+    radial-gradient(900px 680px at 50% 120%, rgba(148, 163, 184, 0.12), transparent 56%),
+    linear-gradient(180deg, #fdfaf5 0%, #f7efe3 58%, #f3e8d9 100%);
   background-attachment: fixed;
 }
 
@@ -319,6 +319,26 @@ body::after {
 
 html, body {
   overflow-x: hidden;
+}
+
+#root {
+  background: transparent;
+}
+
+.site-shell {
+  position: relative;
+  isolation: isolate;
+}
+
+.site-shell::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    linear-gradient(110deg, rgba(127, 29, 29, 0.08), transparent 34%),
+    linear-gradient(300deg, rgba(180, 83, 9, 0.08), transparent 38%);
 }
 
 .scroll-decor-wrap {
