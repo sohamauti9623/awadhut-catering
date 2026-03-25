@@ -9,7 +9,13 @@ body {
   font-family: 'Outfit', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: #FAFAF9;
+  background-color: #f8f5f1;
+  background-image:
+    radial-gradient(1200px 700px at 8% -12%, rgba(220, 38, 38, 0.10), transparent 55%),
+    radial-gradient(900px 520px at 92% 0%, rgba(217, 119, 6, 0.10), transparent 52%),
+    radial-gradient(900px 680px at 50% 120%, rgba(148, 163, 184, 0.08), transparent 56%),
+    linear-gradient(180deg, #fcfbfa 0%, #f7f3ee 58%, #f4efe8 100%);
+  background-attachment: fixed;
 }
 
 code {
@@ -53,6 +59,30 @@ code {
   body {
     @apply bg-background text-foreground;
   }
+}
+
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 18% 24%, rgba(255, 255, 255, 0.45), transparent 30%),
+    radial-gradient(circle at 84% 16%, rgba(255, 255, 255, 0.28), transparent 28%);
+  z-index: -1;
+}
+
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.2;
+  background-image: radial-gradient(rgba(120, 53, 15, 0.14) 0.7px, transparent 0.7px);
+  background-size: 3px 3px;
+  mix-blend-mode: multiply;
+  z-index: -1;
 }
 
 @layer base {
