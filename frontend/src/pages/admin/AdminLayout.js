@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation, Outlet } from 'react-router-dom';
 import { LayoutDashboard, Package, Image, Star, CalendarDays, LogOut, Menu, X, MessageSquare, PartyPopper } from 'lucide-react';
+import { toast } from 'sonner';
 import api from '../../lib/api';
 
 const sidebarLinks = [
@@ -20,7 +21,25 @@ export default function AdminLayout() {
 
   useEffect(() => {
     const token = localStorage.getItem('adminToken');
-    if (!token) navigate('/admin/login');
+    if (!token) {
+      navigate('/admin/login');
+      return;
+    }
+
+    api.get('/auth/me')
+      .then(({ data }) => {
+        if (data?.role !== 'admin') {
+          localStorage.removeItem('adminToken');
+          localStorage.removeItem('adminName');
+          toast.error('Admin access required. Please login with an admin account.');
+          navigate('/admin/login');
+        }
+      })
+      .catch(() => {
+        localStorage.removeItem('adminToken');
+        localStorage.removeItem('adminName');
+        navigate('/admin/login');
+      });
   }, [navigate]);
 
   useEffect(() => { setSidebarOpen(false); }, [location]);

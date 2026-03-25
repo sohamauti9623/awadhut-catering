@@ -16,6 +16,14 @@ export default function AdminLogin() {
     setLoading(true);
     try {
       const { data } = await api.post('/auth/login', form);
+
+      if (data.role !== 'admin') {
+        localStorage.removeItem('adminToken');
+        localStorage.removeItem('adminName');
+        toast.error('This account does not have admin access.');
+        return;
+      }
+
       localStorage.setItem('adminToken', data.token);
       localStorage.setItem('adminName', data.name);
       toast.success('Login successful!');
