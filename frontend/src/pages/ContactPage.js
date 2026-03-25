@@ -15,8 +15,10 @@ function AnimatedSection({ children, className = '', delay = 0 }) {
   );
 }
 
-  const contactInfo = [
-  { icon: MapPin, title: 'Visit Us', detail: 'Near Bus Stand, Latur,\nMaharashtra 413512', color: 'bg-red-50 text-red-800' },
+const MAPS_URL = 'https://www.google.com/maps/place/%E0%A4%85%E0%A4%B5%E0%A4%A7%E0%A5%82%E0%A4%A4+%E0%A4%AE%E0%A4%82%E0%A4%A1%E0%A4%AA+%E0%A4%A1%E0%A5%87%E0%A4%95%E0%A5%8B%E0%A4%B0%E0%A5%87%E0%A4%9F%E0%A4%B0%E0%A5%8D%E0%A4%B8+%E0%A4%85%E0%A4%81%E0%A4%A1+%E0%A4%95%E0%A5%85%E0%A4%9F%E0%A4%B0%E0%A5%8D%E0%A4%B8/@18.401586,76.5427096,17z/data=!3m1!4b1!4m6!3m5!1s0x3bcf81002d9dac75:0x869866a8e76a1816!8m2!3d18.401586!4d76.5427096!16s%2Fg%2F11xt2wm4x_?hl=en-US&entry=ttu&g_ep=EgoyMDI2MDMyMi4wIKXMDSoASAFQAw%3D%3D';
+
+const contactInfo = [
+  { icon: MapPin, title: 'Visit Us', detail: 'Near Bus Stand, Latur,\nMaharashtra 413512', color: 'bg-red-50 text-red-800', link: MAPS_URL },
   { icon: Phone, title: 'Call Us', detail: '+91 97672 86040\n+91 72194 98226', color: 'bg-amber-50 text-amber-700', link: 'tel:+919767286040' },
   { icon: Mail, title: 'Email Us', detail: 'chaitanyabanquetsmh24@gmail.com', color: 'bg-blue-50 text-blue-700', link: 'mailto:chaitanyabanquetsmh24@gmail.com' },
   { icon: Clock, title: 'Working Hours', detail: 'Monday - Sunday\n9:00 AM - 10:00 PM', color: 'bg-green-50 text-green-700' },
@@ -78,7 +80,7 @@ export default function ContactPage() {
               <div className="rounded-2xl overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.04)] h-full min-h-[400px]">
                 <iframe
                   data-testid="google-map-embed"
-                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d60626.68684837!2d76.52!3d18.40!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bcf83001a38e3b1%3A0x75e0dcc9f1b0d0e0!2sLatur%2C%20Maharashtra!5e0!3m2!1sen!2sin!4v1700000000000!5m2!1sen!2sin"
+                  src={`https://www.google.com/maps?output=embed&q=${encodeURIComponent(MAPS_URL)}`}
                   width="100%"
                   height="100%"
                   style={{ border: 0, minHeight: '400px' }}
@@ -89,7 +91,7 @@ export default function ContactPage() {
                 />
               </div>
               <a
-                href="https://maps.app.goo.gl/kavxRXoRkEudqmur7"
+                href={MAPS_URL}
                 target="_blank"
                 rel="noopener noreferrer"
                 data-testid="get-directions-btn"
