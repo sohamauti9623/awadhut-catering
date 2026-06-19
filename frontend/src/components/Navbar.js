@@ -44,8 +44,8 @@ export default function Navbar() {
       data-testid="main-navbar"
       className={`fixed top-0 left-0 right-0 z-40 transition-all duration-500 ${
         scrolled
-          ? 'bg-white/78 backdrop-blur-2xl border-b border-white/50 shadow-[0_12px_40px_rgba(120,53,15,0.12)]'
-          : 'bg-white/55 backdrop-blur-xl'
+          ? 'bg-surface-900/90 backdrop-blur-2xl border-b border-emerald-900/50 shadow-[0_12px_40px_rgba(0,0,0,0.5)]'
+          : 'bg-surface-900/60 backdrop-blur-xl'
       }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -59,8 +59,8 @@ export default function Navbar() {
               <span className="brand-logo-pulse" />
             </div>
             <div className="hidden sm:block">
-              <h1 className="font-serif font-bold text-stone-900 text-[1.05rem] leading-tight tracking-tight group-hover:text-red-900 transition-colors">Awadhut</h1>
-              <p className="text-[10px] text-stone-500 font-sans uppercase tracking-[0.24em] -mt-0.5 group-hover:text-stone-700 transition-colors">Banquets & Catering</p>
+              <h1 className="font-serif font-bold text-emerald-100 text-[1.05rem] leading-tight tracking-tight group-hover:text-gold-400 transition-colors duration-300">Awadhut</h1>
+              <p className="text-[10px] text-emerald-600 font-sans uppercase tracking-[0.24em] -mt-0.5 group-hover:text-gold-500 transition-colors duration-300">Banquets & Catering</p>
             </div>
           </Link>
 
@@ -73,8 +73,8 @@ export default function Navbar() {
                 data-testid={`nav-${link.name.toLowerCase()}`}
                 className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
                   location.pathname === link.path
-                    ? 'text-red-800 bg-red-50/80 shadow-[inset_0_0_0_1px_rgba(153,27,27,0.08)]'
-                    : 'text-stone-600 hover:text-stone-900 hover:bg-stone-100/70'
+                    ? 'text-emerald-400 bg-emerald-900/40 shadow-[inset_0_0_0_1px_rgba(16,185,129,0.2)]'
+                    : 'text-emerald-200/70 hover:text-emerald-100 hover:bg-emerald-900/30'
                 }`}
               >
                 {link.name}
@@ -86,14 +86,14 @@ export default function Navbar() {
           <div className="flex items-center gap-3">
             {user ? (
               <div className="hidden sm:flex items-center gap-2">
-                <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-stone-100/90 text-stone-700 border border-stone-200/70">
+                <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-900/40 text-emerald-300 border border-emerald-800/50">
                   <User className="w-3.5 h-3.5" />
                   <span className="text-xs font-medium">{user.name}</span>
                 </div>
                 <button
                   data-testid="navbar-logout-btn"
                   onClick={logout}
-                  className="p-2 rounded-full hover:bg-stone-100 text-stone-500 transition-colors"
+                  className="p-2 rounded-full hover:bg-emerald-900/40 text-emerald-500 transition-colors"
                   title="Logout"
                 >
                   <LogOut className="w-4 h-4" />
@@ -104,14 +104,14 @@ export default function Navbar() {
                 <button
                   data-testid="navbar-login-btn"
                   onClick={() => setAuthOpen(true)}
-                  className="hidden sm:inline-flex items-center gap-2 text-stone-600 hover:text-stone-900 px-3 py-2 rounded-lg text-sm font-medium transition-colors"
+                  className="hidden sm:inline-flex items-center gap-2 text-emerald-300 hover:text-emerald-100 px-3 py-2 rounded-lg text-sm font-medium transition-colors"
                 >
                   <User className="w-4 h-4" /> Login
                 </button>
                 <button
                   data-testid="navbar-login-mobile-btn"
                   onClick={() => setAuthOpen(true)}
-                  className="sm:hidden p-2 rounded-full bg-stone-100 text-stone-700 border border-stone-200/80"
+                  className="sm:hidden p-2 rounded-full bg-emerald-900/40 text-emerald-400 border border-emerald-800/50"
                   title="Login"
                   aria-label="Login"
                 >
@@ -122,17 +122,17 @@ export default function Navbar() {
             <Link
               to="/booking"
               data-testid="nav-book-event"
-              className="hidden sm:inline-flex items-center gap-2 text-white px-5 py-2.5 rounded-full text-sm font-semibold btn-liquid bg-gradient-to-r from-red-800 via-red-700 to-amber-700 hover:shadow-[0_14px_28px_rgba(127,29,29,0.35)]"
+              className="hidden sm:inline-flex items-center gap-2 text-surface-900 px-5 py-2.5 rounded-full text-sm font-semibold btn-liquid bg-gradient-to-r from-gold-500 via-gold-400 to-gold-500 hover:shadow-[0_14px_28px_rgba(212,175,55,0.35)] transition-shadow duration-300"
             >
               <Sparkles className="w-4 h-4" /> Book Your Event
             </Link>
-            <a href="tel:+919767286040" className="lg:hidden p-2 rounded-full bg-stone-100 text-stone-700 border border-stone-200/80">
+            <a href="tel:+919767286040" className="lg:hidden p-2 rounded-full bg-emerald-900/40 text-emerald-400 border border-emerald-800/50">
               <Phone className="w-4 h-4" />
             </a>
             <button
               data-testid="mobile-menu-toggle"
               onClick={() => setOpen(!open)}
-              className="lg:hidden p-2 rounded-lg hover:bg-stone-100 transition-colors"
+              className="lg:hidden p-2 rounded-lg hover:bg-emerald-900/40 text-emerald-400 transition-colors"
             >
               {open ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
@@ -142,7 +142,7 @@ export default function Navbar() {
 
       {/* Mobile Menu */}
       {open && (
-        <div className="lg:hidden fixed inset-0 top-16 sm:top-20 z-30 bg-white/95 backdrop-blur-xl border-t border-stone-200/50 overflow-y-auto">
+        <div className="lg:hidden fixed inset-0 top-16 sm:top-20 z-30 bg-surface-900/98 backdrop-blur-xl border-t border-emerald-900/50 overflow-y-auto">
           <div className="px-4 py-4 space-y-1 min-h-full">
             {navLinks.map((link) => (
               <Link
@@ -151,8 +151,8 @@ export default function Navbar() {
                 data-testid={`mobile-nav-${link.name.toLowerCase()}`}
                 className={`block px-4 py-3 rounded-xl text-sm font-medium transition-colors ${
                   location.pathname === link.path
-                    ? 'text-red-800 bg-red-50'
-                    : 'text-stone-600 hover:bg-stone-50'
+                    ? 'text-emerald-400 bg-emerald-900/40'
+                    : 'text-emerald-200/70 hover:bg-emerald-900/30 hover:text-emerald-100'
                 }`}
               >
                 {link.name}
@@ -160,19 +160,19 @@ export default function Navbar() {
             ))}
             <Link
               to="/booking"
-              className="block mt-3 text-center text-white px-5 py-3 rounded-xl text-sm font-semibold btn-liquid bg-gradient-to-r from-red-800 via-red-700 to-amber-700"
+              className="block mt-3 text-center text-surface-900 px-5 py-3 rounded-xl text-sm font-semibold btn-liquid bg-gradient-to-r from-gold-500 via-gold-400 to-gold-500"
             >
               Book Your Event
             </Link>
             {user ? (
-              <div className="flex items-center justify-between mt-3 px-4 py-3 rounded-xl bg-stone-50">
-                <span className="text-sm text-stone-600">{user.name}</span>
-                <button onClick={logout} className="text-xs text-red-600">Logout</button>
+              <div className="flex items-center justify-between mt-3 px-4 py-3 rounded-xl bg-emerald-900/30 border border-emerald-800/40">
+                <span className="text-sm text-emerald-300">{user.name}</span>
+                <button onClick={logout} className="text-xs text-gold-400">Logout</button>
               </div>
             ) : (
               <button
                 onClick={() => setAuthOpen(true)}
-                className="block mt-2 w-full text-center border border-stone-200 text-stone-700 px-5 py-3 rounded-xl text-sm font-medium"
+                className="block mt-2 w-full text-center border border-emerald-800/50 text-emerald-300 px-5 py-3 rounded-xl text-sm font-medium hover:bg-emerald-900/30 transition-colors"
               >
                 Login / Sign Up
               </button>
